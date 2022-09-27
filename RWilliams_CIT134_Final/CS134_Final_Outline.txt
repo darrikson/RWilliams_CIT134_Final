@@ -1,0 +1,135 @@
+Logic Flow:
+Greet Player
+Info for player about game and class selection
+Player selects Class
+Class is generated
+Opponent is generated
+Battle Begins
+
+Battle Flow:
+Increment Round Counter
+Player Status check
+	Active flag
+Player is given a list of options, player may select any option
+	Option Flow
+Player selects an option
+Opponent Status Check
+	Active Flag
+Opponent selects option (obscured)
+	Option Parse
+Player's option take effect.
+	Roll Status Chance (if applicable)
+	Determine Damage
+Opponent HP Check < 0 aborts loop
+Opponent option takes effect
+	Roll Status Chance (if applicable)
+	Determine Damage
+Player HP check, loop to top, continue until opponent or Player HP is 0
+
+Option Flow:
+Fight and Defend will auto initiate.
+Skill will call another method that offers a sub menu
+Sub Menu method and options are inherent by class, 
+-how do you exit the sub menu without selecting from it? recursion loops
+
+Determining Damage:
+Player Roll:
+OPHP-(((DmgRoll*PLAtkVal)*(PLAtkStsMod)*100)/(OPDefVal)*(OPDefStsMod))+(OPHPStsDmg) move HP to end of round
+-these are the same, can either write the method twice, or implement variables to determine actor and target 
+-can't because player and opponent are separate classes. Only separated for assignment purposes
+-Just learned it could still be done, build a new class and give it the Player and Opponent classes as members
+-But I'm not going to rerwrite all my code at this point
+Player Healing:
+PLHP+Rand(75,251)
+Opponent Roll:
+PLHP-(((DmgRoll*OPAtkVal)*(OPAtkStsMod)*100)/(PLDefVal)*(PLDefStsMod))+(PLHPStsDmg)
+2500 - ((((45*1.5) *1.5) *100) / (50)*(1.0)) + (2500*.1) sample algorithm in action
+2500 - 452.5
+
+Statuses:
+Freeze (afflicted loses action for 1 turn) 1/2 Changes Active Flag
+Poison (afflicted takes 8% HP damage per turn for three turns) 1/4 Sets HPStsDmg var
+Burn (afflicted takes 5% HP damage per turn for four turns) 1/3 Sets HPStsDmg var
+Petrify (afflicted loses action for 2 turns) 1/8 Changes Active Flag
+Stun (afflicted loses action for 1 turn) 1/2 Changes Active Flag
+Drain (afflicted takes additional 10% HP damage for that turn) 100% Sets HPStsDmg var
+Might (afflicted gains 1.5 dmg modifier for 2 turns) 100% Changes AttStsMod var
+Weak (afflicted receives 1.5 dmg for 2 turns) 100% Changes DefStsMod var
+Dizzy (afflicted has a 50% chance to lose next turn, lasts three turns) 1/3 Changes Active Flag
+Status types:
+Affect ATKSts :Might
+Affect DefSts: Weak Barrier Penance Hiearchy: Weak<Penance<Barrier
+Affect HPSts: Burn Poison SoulBind Drain Heirarchy: Drain<Burn<Poison<SoulBind (need active refresh during exhaust to reassert effects)
+Affect Active: Freeze Dizzy Stun Petrify MightyBlow Vanquish Heiracrhy: Stun<Dizzy<MightyBlow<Freeze<Petrify<Vanquish
+Class Abilities:
+	Player:
+Cleric:
+Barrier (PLDeFStsMod becomes *2.5 for 3 turns) - status
+Penance (OPDefStsMod becomes *0.5 for 3 turns) -status
+Vanquish (if opponent is undead, opponent HP = 0) - status
+Heal (Player Healing instead of Determine Damage)
+Bash (attack, chance to inflict Stun)
+Fighter:
+Boast (inflict Might on self)
+Mighty Blow (channels for 1 turn, on next turn, AtkVal is *2.0) - status
+Disorient (attacks, chance to inflict Dizzy)
+Crippling Blow (attacks, inflicts Weak)
+Quick Strike (attack, chance to inflict Stun)
+Mage:
+Fire (attacks, chance to inflict Burn)
+Ice (attacks, chance to inflict Freeze)
+Poison (attacks, chance to inflict Poison)
+Bolt (attacks, chance to inflict Dizzy)
+Frighten (inflicts Weak on opponent)
+Ninja:
+Poison Blade (attack, chance to inflict Poison)
+Izunami (attack, chance to inflict Stun)
+Suiton (attack, chance to inlfict Freeze)
+Pill (Player Healing, inflict Might on Self)
+Soul Bind (Player HPStsDmg is .05 and Op HPStsDmg is .15 for 3 rounds) -status
+	Opponent:
+Vamp: -undead
+Withering Gaze (inflicts Weak)
+Drain (attack and inflict Drain)
+Swipe (attack, chance to inflict Stun)
+Gorgon:
+Gaze (chance to inflict Petrify)
+Cover Up (OPDefVal is *1.5 for that turn)
+Rage (attack, OPAtkVal is *1.5 for that turn)
+Wisp: -undead
+Howl (chance to inflict Dizzy and Weak)
+Burn (attacks, chance to inflict Burn)
+Freeze (attacks, chance to inflict Freeze)
+Stone (chance to inflict Petrify)
+
+
+
+Requisite Variables:
+Player Object:
+PLName
+PLHP
+PLAtkVal
+PLDefVal
+PLStatusFlag
+StsCounter (for all statuses) implemented on Player object - statuses moved into array for simplicity, and assignment
+PLAtkStsMod
+PLActiveFlag
+PLHPStsDmg
+PLDefStsMod
+Opponent Object:
+OPName
+OPHP
+OPAtkVal
+OPDefVal
+OPStatusFlag
+StsCounter (for all statuses) implemented on Opponent object
+OPAtkStsMod
+OPActiveFlag
+OPHPStsDmg
+OPDefStsMod
+
+Multi Dimensional Array:
+HP at start and end of each round, dmg values derived from difference, previous 5 rounds
+x coordinate = roundcounter%5 1=0 2=1 3=2 4=3 0=4 (arrays start at 0!)
+y coordiante roundcounter PL.HP/start OP.HP/start PL.HP/end OP.HP/end DmgGiven(OP.Hp/start - OP.HP/end) DmgReceive(PL.HP/start - PL.HP/end)
+-Don't actually need to store dmg variables, can be done at display out. Assignment contradicts that, nevermind
